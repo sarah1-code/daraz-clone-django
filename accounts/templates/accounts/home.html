@@ -1,0 +1,222 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+
+<!-- Hero Banner - Daraz Style -->
+<div class="bg-white mb-3">
+    <div class="container-fluid px-0">
+        <div style="background: linear-gradient(135deg, #FF6600 0%, #FF8533 100%); padding: 40px 0; text-align: center;">
+            <h1 class="text-white fw-bold mb-2" style="font-size: 3rem; letter-spacing: 3px;">DARAZ</h1>
+            <p class="text-white mb-0 fs-5">Your Trusted Online Shopping Destination</p>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-3">
+    <!-- Categories Section - Daraz Style -->
+    <div class="bg-white rounded mb-3 p-3 shadow-sm">
+        <h5 class="mb-3 fw-bold"><i class="fas fa-th-large text-danger me-2"></i>Shop by Category</h5>
+        <div class="row g-2">
+            <div class="col-6 col-md-2">
+                <a href="{% url 'category_products' 'Electronics' %}" class="text-decoration-none text-dark">
+                    <div class="text-center p-3 border rounded hover-shadow" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fff5f0'" onmouseout="this.style.backgroundColor='white'">
+                        <i class="fas fa-mobile-alt fa-2x text-danger mb-2"></i>
+                        <p class="mb-0 small fw-bold">Electronics</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="{% url 'category_products' 'Fashion' %}" class="text-decoration-none text-dark">
+                    <div class="text-center p-3 border rounded hover-shadow" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fff5f0'" onmouseout="this.style.backgroundColor='white'">
+                        <i class="fas fa-tshirt fa-2x text-danger mb-2"></i>
+                        <p class="mb-0 small fw-bold">Fashion</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="{% url 'category_products' 'Home & Living' %}" class="text-decoration-none text-dark">
+                    <div class="text-center p-3 border rounded hover-shadow" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fff5f0'" onmouseout="this.style.backgroundColor='white'">
+                        <i class="fas fa-home fa-2x text-danger mb-2"></i>
+                        <p class="mb-0 small fw-bold">Home & Living</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="{% url 'category_products' 'Sports' %}" class="text-decoration-none text-dark">
+                    <div class="text-center p-3 border rounded hover-shadow" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fff5f0'" onmouseout="this.style.backgroundColor='white'">
+                        <i class="fas fa-dumbbell fa-2x text-danger mb-2"></i>
+                        <p class="mb-0 small fw-bold">Sports</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="{% url 'category_products' 'Baby & Kids' %}" class="text-decoration-none text-dark">
+                    <div class="text-center p-3 border rounded hover-shadow" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fff5f0'" onmouseout="this.style.backgroundColor='white'">
+                        <i class="fas fa-baby fa-2x text-danger mb-2"></i>
+                        <p class="mb-0 small fw-bold">Baby & Kids</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="{% url 'category_products' 'Gaming' %}" class="text-decoration-none text-dark">
+                    <div class="text-center p-3 border rounded hover-shadow" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fff5f0'" onmouseout="this.style.backgroundColor='white'">
+                        <i class="fas fa-gamepad fa-2x text-danger mb-2"></i>
+                        <p class="mb-0 small fw-bold">Gaming</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Sale / Featured Products - Daraz Style -->
+    <div class="bg-white rounded mb-3 p-3 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-fire text-danger me-2"></i>Flash Sale</h5>
+            <a href="{% url 'product_list' %}" class="text-danger text-decoration-none">View All <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        
+        <div class="row g-3">
+            {% for product in products %}
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="product-card h-100">
+                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                        <div class="position-relative">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="product-image" alt="{{ product.title }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/f0f0f0/999999?text=No+Image';">
+                            {% elif product.image_url %}
+                            <img src="{{ product.image_url }}" class="product-image" alt="{{ product.title }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/f0f0f0/999999?text=No+Image';">
+                            {% else %}
+                            <img src="https://via.placeholder.com/200x200/f0f0f0/999999?text=No+Image" class="product-image" alt="{{ product.title }}">
+                            {% endif %}
+                            {% if product.discount_percentage > 0 %}
+                            <span class="position-absolute top-0 start-0 m-2 discount-badge">
+                                -{{ product.discount_percentage }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="p-2">
+                            <h6 class="mb-1 small" style="height: 40px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                {{ product.title }}
+                            </h6>
+                            
+                            <!-- Rating -->
+                            <div class="mb-1">
+                                <span class="rating-stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.average_rating|floatformat:0|add:"0" %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter|add:"-1" < product.average_rating|floatformat:0|add:"0" %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <small class="text-muted ms-1">({{ product.review_count }})</small>
+                            </div>
+                            
+                            <!-- Price -->
+                            <div class="mb-1">
+                                {% if product.original_price and product.original_price > product.price %}
+                                <span class="price-original">Rs {{ product.original_price }}</span>
+                                {% endif %}
+                                <span class="price-current">Rs {{ product.price }}</span>
+                            </div>
+                            
+                            <!-- Sold Count -->
+                            <div class="sold-badge">
+                                <i class="fas fa-shopping-bag me-1"></i>{{ product.sold_count }} sold
+                            </div>
+                        </div>
+                    </a>
+                    <div class="p-2 pt-0">
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-danger btn-sm w-100">
+                            <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No products available yet.</p>
+                <a href="{% url 'product_list' %}" class="btn btn-danger">Browse Products</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Just For You Section -->
+    <div class="bg-white rounded mb-3 p-3 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-heart text-danger me-2"></i>Just For You</h5>
+            <a href="{% url 'product_list' %}" class="text-danger text-decoration-none">View All <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        
+        <div class="row g-3">
+            {% for product in just_for_you_products %}
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="product-card h-100">
+                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                        <div class="position-relative">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="product-image" alt="{{ product.title }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/f0f0f0/999999?text=No+Image';">
+                            {% elif product.image_url %}
+                            <img src="{{ product.image_url }}" class="product-image" alt="{{ product.title }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/f0f0f0/999999?text=No+Image';">
+                            {% else %}
+                            <img src="https://via.placeholder.com/200x200/f0f0f0/999999?text=No+Image" class="product-image" alt="{{ product.title }}">
+                            {% endif %}
+                            {% if product.discount_percentage > 0 %}
+                            <span class="position-absolute top-0 start-0 m-2 discount-badge">
+                                -{{ product.discount_percentage }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="p-2">
+                            <h6 class="mb-1 small" style="height: 40px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                {{ product.title }}
+                            </h6>
+                            
+                            <!-- Rating -->
+                            <div class="mb-1">
+                                <span class="rating-stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.average_rating|floatformat:0|add:"0" %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter|add:"-1" < product.average_rating|floatformat:0|add:"0" %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <small class="text-muted ms-1">({{ product.review_count }})</small>
+                            </div>
+                            
+                            <!-- Price -->
+                            <div class="mb-1">
+                                {% if product.original_price and product.original_price > product.price %}
+                                <span class="price-original">Rs {{ product.original_price }}</span>
+                                {% endif %}
+                                <span class="price-current">Rs {{ product.price }}</span>
+                            </div>
+                            
+                            <!-- Sold Count -->
+                            <div class="sold-badge">
+                                <i class="fas fa-shopping-bag me-1"></i>{{ product.sold_count }} sold
+                            </div>
+                        </div>
+                    </a>
+                    <div class="p-2 pt-0">
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-danger btn-sm w-100">
+                            <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,3 +1,287 @@
-<h2>Welcome, {{ request.user.username }}</h2>
-<p>Role: {{ request.user.profile.role }}</p>
-<a href="{% url 'logout' %}">Logout</a>
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid px-3 mt-3">
+    <!-- Profile Header -->
+    <div class="bg-white rounded p-4 shadow-sm mb-3">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+                {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" class="rounded-circle border border-danger" width="120" height="120" style="object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle bg-danger text-white d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-size: 3rem;">
+                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                    </div>
+                {% endif %}
+                <div class="mt-3">
+                    <button class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-camera me-1"></i>Change Photo
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h3 class="fw-bold mb-2">
+                    {% if request.user.first_name or request.user.last_name %}
+                        {{ request.user.first_name }} {{ request.user.last_name }}
+                    {% else %}
+                        {{ request.user.username }}
+                    {% endif %}
+                </h3>
+                <p class="text-muted mb-2">
+                    <i class="fas fa-envelope me-2"></i>{{ request.user.email|default:"Not provided" }}
+                </p>
+                <p class="text-muted mb-2">
+                    <i class="fas fa-phone me-2"></i>{{ profile.phone|default:"Not provided" }}
+                </p>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-map-marker-alt me-2"></i>{{ profile.address|default:"Not provided" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Sidebar - Menu -->
+        <div class="col-md-3 mb-3">
+            <div class="bg-white rounded shadow-sm">
+                <div class="list-group list-group-flush">
+                    <a href="#orders" class="list-group-item list-group-item-action active" data-bs-toggle="tab" data-bs-target="#orders-tab">
+                        <i class="fas fa-shopping-bag me-2"></i>My Orders
+                    </a>
+                    <a href="#account" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#account-tab">
+                        <i class="fas fa-user me-2"></i>Account Settings
+                    </a>
+                    <a href="#address" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#address-tab">
+                        <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                    </a>
+                    <a href="#payment" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#payment-tab">
+                        <i class="fas fa-credit-card me-2"></i>Payment Methods
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="bg-white rounded shadow-sm mt-3 p-3">
+                <h6 class="fw-bold mb-3">Account Summary</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Total Orders:</span>
+                    <strong>{{ orders.count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Total Spent:</span>
+                    <strong class="text-danger">Rs {{ total_payments|floatformat:2 }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Member Since:</span>
+                    <strong>{{ request.user.date_joined|date:"M Y" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Content - Tabs -->
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- Orders Tab -->
+                <div class="tab-pane fade show active" id="orders-tab">
+                    <div class="bg-white rounded shadow-sm p-4">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-shopping-bag text-danger me-2"></i>My Orders
+                        </h5>
+                        
+                        {% if orders %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in orders %}
+                                        <tr>
+                                            <td><strong>#{{ order.id }}</strong></td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if order.product.image %}
+                                                    <img src="{{ order.product.image.url }}" class="me-2" width="40" height="40" style="object-fit: cover; border-radius: 4px;">
+                                                    {% endif %}
+                                                    <span>{{ order.product.title }}</span>
+                                                </div>
+                                            </td>
+                                            <td>{{ order.quantity }}</td>
+                                            <td class="text-danger fw-bold">Rs {{ order.total_price }}</td>
+                                            <td>{{ order.ordered_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if order.status == 'Delivered' %}bg-success
+                                                    {% elif order.status == 'Pending' %}bg-warning
+                                                    {% elif order.status == 'Cancelled' %}bg-danger
+                                                    {% elif order.status == 'Shipped' %}bg-info
+                                                    {% else %}bg-secondary{% endif %}">
+                                                    {{ order.status }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'product_detail' order.product.id %}" class="btn btn-sm btn-outline-danger">
+                                                    View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-3">You haven't placed any orders yet.</p>
+                                <a href="{% url 'product_list' %}" class="btn btn-danger">
+                                    <i class="fas fa-shopping-cart me-2"></i>Start Shopping
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Account Settings Tab -->
+                <div class="tab-pane fade" id="account-tab">
+                    <div class="bg-white rounded shadow-sm p-4">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-user text-danger me-2"></i>Account Settings
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Username</label>
+                                    <input type="text" class="form-control" value="{{ request.user.username }}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">First Name</label>
+                                    <input type="text" class="form-control" value="{{ request.user.first_name|default:'' }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Last Name</label>
+                                    <input type="text" class="form-control" value="{{ request.user.last_name|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Email</label>
+                                    <input type="email" class="form-control" value="{{ request.user.email|default:'' }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Phone</label>
+                                    <input type="text" class="form-control" value="{{ profile.phone|default:'' }}">
+                                </div>
+                                <button class="btn btn-danger">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Tab -->
+                <div class="tab-pane fade" id="address-tab">
+                    <div class="bg-white rounded shadow-sm p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>Saved Addresses
+                            </h5>
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fas fa-plus me-1"></i>Add New Address
+                            </button>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-2">Default Address</h6>
+                                <p class="mb-1">
+                                    <i class="fas fa-user me-2"></i>
+                                    {% if request.user.first_name or request.user.last_name %}
+                                        {{ request.user.first_name }} {{ request.user.last_name }}
+                                    {% else %}
+                                        {{ request.user.username }}
+                                    {% endif %}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-phone me-2"></i>{{ profile.phone|default:"Not provided" }}
+                                </p>
+                                <p class="mb-0">
+                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                    {{ profile.address|default:"No address saved. Please add your address." }}
+                                </p>
+                                <div class="mt-3">
+                                    <button class="btn btn-outline-danger btn-sm me-2">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods Tab -->
+                <div class="tab-pane fade" id="payment-tab">
+                    <div class="bg-white rounded shadow-sm p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">
+                                <i class="fas fa-credit-card text-danger me-2"></i>Payment Methods
+                            </h5>
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fas fa-plus me-1"></i>Add Payment Method
+                            </button>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Payment Summary</h6>
+                                        <p class="text-muted mb-0">Total amount spent on this account</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <h4 class="text-danger fw-bold mb-0">Rs {{ total_payments|floatformat:2 }}</h4>
+                                        <small class="text-muted">{{ orders.count }} orders</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Payment methods can be added during checkout. All transactions are secure and encrypted.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize Bootstrap tabs
+document.addEventListener('DOMContentLoaded', function() {
+    const triggerTabList = document.querySelectorAll('[data-bs-toggle="tab"]');
+    triggerTabList.forEach(triggerEl => {
+        triggerEl.addEventListener('click', function(event) {
+            event.preventDefault();
+            const tab = new bootstrap.Tab(triggerEl);
+            tab.show();
+        });
+    });
+});
+</script>
+
+{% endblock %}

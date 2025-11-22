@@ -1,0 +1,133 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid px-3 mt-3">
+    <div class="bg-white rounded p-4 shadow-sm">
+        <div class="row">
+            <!-- Product Image -->
+            <div class="col-md-5 mb-4">
+                <div class="position-relative">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="img-fluid rounded border" alt="{{ product.title }}" style="max-height: 500px; width: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='https://via.placeholder.com/500x500/f0f0f0/999999?text=No+Image';">
+                    {% elif product.image_url %}
+                    <img src="{{ product.image_url }}" class="img-fluid rounded border" alt="{{ product.title }}" style="max-height: 500px; width: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='https://via.placeholder.com/500x500/f0f0f0/999999?text=No+Image';">
+                    {% else %}
+                    <img src="https://via.placeholder.com/500x500/f0f0f0/999999?text=No+Image" class="img-fluid rounded border" alt="{{ product.title }}">
+                    {% endif %}
+                    {% if product.discount_percentage > 0 %}
+                    <span class="position-absolute top-0 start-0 m-3 discount-badge" style="font-size: 1rem; padding: 5px 12px;">
+                        -{{ product.discount_percentage }}% OFF
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-md-7">
+                <h2 class="mb-3 fw-bold">{{ product.title }}</h2>
+                
+                <!-- Rating and Reviews -->
+                <div class="mb-3 d-flex align-items-center">
+                    <div class="rating-stars me-2" style="font-size: 1.2rem;">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= product.average_rating|floatformat:0|add:"0" %}
+                                <i class="fas fa-star"></i>
+                            {% elif forloop.counter|add:"-1" < product.average_rating|floatformat:0|add:"0" %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="text-muted me-3">
+                        <strong>{{ product.average_rating }}</strong> ({{ product.review_count }} reviews)
+                    </span>
+                    <span class="text-muted">
+                        <i class="fas fa-shopping-bag me-1"></i>{{ product.sold_count }} sold
+                    </span>
+                </div>
+
+                <hr>
+
+                <!-- Price -->
+                <div class="mb-4">
+                    {% if product.original_price and product.original_price > product.price %}
+                    <div class="mb-2">
+                        <span class="price-original fs-5">Rs {{ product.original_price }}</span>
+                        <span class="discount-badge ms-2">{{ product.discount_percentage }}% OFF</span>
+                    </div>
+                    {% endif %}
+                    <div class="price-current fs-2 fw-bold">Rs {{ product.price }}</div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                    <h5 class="fw-bold">Description</h5>
+                    <p class="text-muted">{{ product.description }}</p>
+                    <p><strong>Category:</strong> <span class="badge bg-danger">{{ product.category }}</span></p>
+                    <p><strong>Stock:</strong> {{ product.stock }} items available</p>
+                </div>
+
+                <!-- Add to Cart Button -->
+                <div class="d-grid gap-2">
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-danger btn-lg">
+                        <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                    </a>
+                    <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Products
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="bg-white rounded p-4 shadow-sm mt-3">
+        <h4 class="mb-4 fw-bold">
+            <i class="fas fa-comments text-danger me-2"></i>Customer Reviews
+            <span class="badge bg-danger ms-2">{{ product.review_count }}</span>
+        </h4>
+
+        {% if reviews %}
+            <div class="row">
+                {% for review in reviews %}
+                <div class="col-12 mb-3 pb-3 border-bottom">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3">
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <span class="fw-bold">{{ review.user.username|first|upper }}</span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">{{ review.user.username }}</h6>
+                                    <div class="rating-stars mb-1">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <p class="mb-0">{{ review.comment }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No reviews yet. Be the first to review this product!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

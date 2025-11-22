@@ -1,13 +1,20 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.http import HttpResponse
-
-# Simple home view
-def home(request):
-    return HttpResponse("<h1>Welcome to Daraz Clone 🛍️</h1><p>Project under development</p>")
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),          # <-- This is the homepage
-    path('', include('accounts.urls')),   # keep accounts URLs
+
+    # accounts app handles home, login, register, profile
+    path('', include('accounts.urls')),
+
+    # top-level app URLs
+    path('products/', include('products.urls')),
+    path('cart/', include('cart.urls')),      # keep these files even if empty for now
+    path('orders/', include('orders.urls')),
 ]
+
+# serve media in DEBUG
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

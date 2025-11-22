@@ -134,5 +134,15 @@ STATIC_URL = '/static/'                  # URL to access static files
 STATICFILES_DIRS = [BASE_DIR / 'static'] # Local folder where static files are stored
 
 # Media files (uploaded by users/admins)
-MEDIA_URL = '/media/'                    # URL to access media files
-MEDIA_ROOT = BASE_DIR / 'media'          # Local folder where uploaded files are stored
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+# Authentication redirects
+LOGIN_URL = 'login'                # name of your login URL
+LOGIN_REDIRECT_URL = 'home'        # where to go AFTER successful login
+LOGOUT_REDIRECT_URL = 'login'      # where to go AFTER logout
